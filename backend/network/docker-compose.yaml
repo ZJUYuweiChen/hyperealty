@@ -1,0 +1,194 @@
+version: '2.1'
+
+networks:
+  fabric_hyperealty_network:
+    name: fabric_hyperealty_network
+
+services:
+  orderer1.hyperealty.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: order-base
+    container_name: orderer1.hyperealty.com
+    ports:
+      - "7050:7050"
+    volumes:
+      - ./config/genesis.block:/etc/hyperledger/config/genesis.block
+      - ./crypto-config/ordererOrganizations/hyperealty.com/orderers/orderer1.hyperealty.com/:/etc/hyperledger/orderer
+      - ./data/orderer1.hyperealty.com:/var/hyperledger/production/orderer
+  orderer2.hyperealty.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: order-base
+    container_name: orderer2.hyperealty.com
+    ports:
+      - "8050:7050"
+    volumes:
+      - ./config/genesis.block:/etc/hyperledger/config/genesis.block
+      - ./crypto-config/ordererOrganizations/hyperealty.com/orderers/orderer2.hyperealty.com/:/etc/hyperledger/orderer
+      - ./data/orderer2.hyperealty.com:/var/hyperledger/production/orderer
+  orderer3.hyperealty.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: order-base
+    container_name: orderer3.hyperealty.com
+    ports:
+      - "9050:7050"
+    volumes:
+      - ./config/genesis.block:/etc/hyperledger/config/genesis.block
+      - ./crypto-config/ordererOrganizations/hyperealty.com/orderers/orderer3.hyperealty.com/:/etc/hyperledger/orderer
+      - ./data/orderer3.hyperealty.com:/var/hyperledger/production/orderer
+
+  peer0.org1.hyperealty.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer0.org1.hyperealty.com
+    environment:
+      - CORE_PEER_ID=peer0.org1.hyperealty.com
+      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_ADDRESS=peer0.org1.hyperealty.com:7051  # peer节点的访问地址
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.hyperealty.com:7052 # peer节点的链码访问地址
+      # 参考 https://hyperledger-fabric.readthedocs.io/zh-cn/release-2.5/gossip.html
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org1.hyperealty.com:7051 # Gossip引导节点，联络列表中的其他 peer 节点进行消息的 gossip 传播
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.hyperealty.com:7051 # 节点向组织外节点公开的服务地址（通过锚节点广播出去给其它组织节点）
+    ports:
+      - "7051:7051"
+      - "7053:7053"
+    volumes:
+      - ./crypto-config/peerOrganizations/org1.hyperealty.com/peers/peer0.org1.hyperealty.com:/etc/hyperledger/peer
+      - ./data/peer0.org1.hyperealty.com:/var/hyperledger/production
+    depends_on:
+      - orderer1.hyperealty.com
+      - orderer2.hyperealty.com
+      - orderer3.hyperealty.com
+  peer1.org1.hyperealty.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer1.org1.hyperealty.com
+    environment:
+      - CORE_PEER_ID=peer1.org1.hyperealty.com
+      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_ADDRESS=peer1.org1.hyperealty.com:7051  # peer节点的访问地址
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org1.hyperealty.com:7052 # peer节点的链码访问地址
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.hyperealty.com:7051 # Gossip引导节点，联络列表中的其他 peer 节点进行消息的 gossip 传播
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org1.hyperealty.com:7051 # 节点向组织外节点公开的服务地址（通过锚节点广播出去给其它组织节点）
+    ports:
+      - "17051:7051"
+      - "17053:7053"
+    volumes:
+      - ./crypto-config/peerOrganizations/org1.hyperealty.com/peers/peer1.org1.hyperealty.com:/etc/hyperledger/peer
+      - ./data/peer1.org1.hyperealty.com:/var/hyperledger/production
+    depends_on:
+      - orderer1.hyperealty.com
+      - orderer2.hyperealty.com
+      - orderer3.hyperealty.com
+
+  peer0.org2.hyperealty.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer0.org2.hyperealty.com
+    environment:
+      - CORE_PEER_ID=peer0.org2.hyperealty.com
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_ADDRESS=peer0.org2.hyperealty.com:7051  # peer节点的访问地址
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.hyperealty.com:7052 # peer节点的链码访问地址
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org2.hyperealty.com:7051 # Gossip引导节点，联络列表中的其他 peer 节点进行消息的 gossip 传播
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.hyperealty.com:7051 # 节点向组织外节点公开的服务地址（通过锚节点广播出去给其它组织节点）
+    ports:
+      - "27051:7051"
+      - "27053:7053"
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.hyperealty.com/peers/peer0.org2.hyperealty.com:/etc/hyperledger/peer
+      - ./data/peer0.org2.hyperealty.com:/var/hyperledger/production
+    depends_on:
+      - orderer1.hyperealty.com
+      - orderer2.hyperealty.com
+      - orderer3.hyperealty.com
+  peer1.org2.hyperealty.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer1.org2.hyperealty.com
+    environment:
+      - CORE_PEER_ID=peer1.org2.hyperealty.com
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_ADDRESS=peer1.org2.hyperealty.com:7051  # peer节点的访问地址
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org2.hyperealty.com:7052 # peer节点的链码访问地址
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.hyperealty.com:7051 # Gossip引导节点，联络列表中的其他 peer 节点进行消息的 gossip 传播
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.hyperealty.com:7051 # 节点向组织外节点公开的服务地址（通过锚节点广播出去给其它组织节点）
+    ports:
+      - "37051:7051"
+      - "37053:7053"
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.hyperealty.com/peers/peer1.org2.hyperealty.com:/etc/hyperledger/peer
+      - ./data/peer1.org2.hyperealty.com:/var/hyperledger/production
+    depends_on:
+      - orderer1.hyperealty.com
+      - orderer2.hyperealty.com
+      - orderer3.hyperealty.com
+
+  peer0.org3.hyperealty.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer0.org3.hyperealty.com
+    environment:
+      - CORE_PEER_ID=peer0.org3.hyperealty.com
+      - CORE_PEER_LOCALMSPID=Org3MSP
+      - CORE_PEER_ADDRESS=peer0.org3.hyperealty.com:7051  # peer节点的访问地址
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org3.hyperealty.com:7052 # peer节点的链码访问地址
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org3.hyperealty.com:7051 # Gossip引导节点，联络列表中的其他 peer 节点进行消息的 gossip 传播
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.hyperealty.com:7051 # 节点向组织外节点公开的服务地址（通过锚节点广播出去给其它组织节点）
+    ports:
+      - "47051:7051"
+      - "47053:7053"
+    volumes:
+      - ./crypto-config/peerOrganizations/org3.hyperealty.com/peers/peer0.org3.hyperealty.com:/etc/hyperledger/peer
+      - ./data/peer0.org3.hyperealty.com:/var/hyperledger/production
+    depends_on:
+      - orderer1.hyperealty.com
+      - orderer2.hyperealty.com
+      - orderer3.hyperealty.com
+
+  peer1.org3.hyperealty.com:
+    extends:
+      file: docker-compose-base.yaml
+      service: peer-base
+    container_name: peer1.org3.hyperealty.com
+    environment:
+      - CORE_PEER_ID=peer1.org3.hyperealty.com
+      - CORE_PEER_LOCALMSPID=Org3MSP
+      - CORE_PEER_ADDRESS=peer1.org3.hyperealty.com:7051  # peer节点的访问地址
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org3.hyperealty.com:7052 # peer节点的链码访问地址
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org3.hyperealty.com:7051 # Gossip引导节点，联络列表中的其他 peer 节点进行消息的 gossip 传播
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org3.hyperealty.com:7051 # 节点向组织外节点公开的服务地址（通过锚节点广播出去给其它组织节点）
+    ports:
+      - "57051:7051"
+      - "57053:7053"
+    volumes:
+      - ./crypto-config/peerOrganizations/org3.hyperealty.com/peers/peer1.org3.hyperealty.com:/etc/hyperledger/peer
+      - ./data/peer1.org3.hyperealty.com:/var/hyperledger/production
+    depends_on:
+      - orderer1.hyperealty.com
+      - orderer2.hyperealty.com
+      - orderer3.hyperealty.com
+
+  cli.hyperealty.com:
+    container_name: cli.hyperealty.com
+    image: hyperledger/fabric-tools:2.5.10
+    tty: true
+    environment:
+      - GOPROXY=https://goproxy.cn,direct
+      - CORE_PEER_ID=cli.hyperealty.com
+    command: /bin/bash
+    volumes:
+      - ./configtx.yaml:/etc/hyperledger/configtx.yaml
+      - ./crypto-config.yaml:/etc/hyperledger/crypto-config.yaml
+      - ./config:/etc/hyperledger/config
+      - ./crypto-config:/etc/hyperledger/crypto-config
+      - ./../chaincode:/opt/gopath/src/chaincode
+    networks:
+      - fabric_hyperealty_network

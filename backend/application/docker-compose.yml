@@ -1,0 +1,29 @@
+version: '2.1'
+
+networks:
+  fabric_hyperealty_network:
+    name: fabric_hyperealty_network
+    external: true
+
+services:
+  # 后端
+  hyperealty.server:
+    image: hyperealty.server:dev       # dev为开发环境，latest为生产环境
+    container_name: hyperealty.server
+    volumes:
+      - ./server/main:/app/main              # 开发环境采用挂载
+      - /usr/share/zoneinfo/Asia/Shanghai:/usr/share/zoneinfo/Asia/Shanghai # 设置时区
+      - ./../network/crypto-config:/network/crypto-config
+      - ./../network/data/application:/app/data
+    ports:
+      - "8888:8888"
+    networks:
+      - fabric_hyperealty_network
+  # 前端
+  hyperealty.web:
+    image: hyperealty.web:latest
+    container_name: hyperealty.web
+    ports:
+      - "8000:80"
+    networks:
+      - fabric_hyperealty_network

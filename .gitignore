@@ -1,0 +1,45 @@
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+dist/
+build/
+out/
+coverage/
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# OS generated
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.DS_Store?
+._*
+
+# Tools
+.cache/
+.nyc_output/
+.npm/
+.yarn/
+.pnpm/
+
+# Docker
+.dockerignore
+
+# Archives
+*.tar.gz
